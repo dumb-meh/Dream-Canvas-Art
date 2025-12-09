@@ -2,7 +2,7 @@
 
 > **Transform your imagination into reality with cutting-edge AI models** 🚀
 
-A powerful, production-ready FastAPI service that brings together the best AI models for **image generation**, **video creation**, **audio/music production**, and **intelligent prompt enhancement**. Built with efficiency, scalability, and ease of use in mind.
+A powerful, production-ready FastAPI service that brings together the best AI models for **image generation**, **video creation**, **audio/music production**, **AI avatars**, and **intelligent prompt enhancement**. Built with efficiency, scalability, and ease of use in mind.
 
 ---
 
@@ -31,18 +31,24 @@ Generate stunning images or edit existing ones using 8 different AI models:
 ---
 
 ### 🎬 **Video Generation**
-Create dynamic videos from text or images using 4 powerful models:
+Create dynamic videos from text or images using 7 powerful models:
 
+**Text-to-Video Models:**
 - **Veo 2.0** - Google's advanced video generation
 - **Veo 3.0 Fast** - Rapid video creation
-- **Pixverse Text-to-Video** - Narrative video generation
+- **Pixverse** - Narrative video generation
+- **Kling** - High-quality text-to-video
+
+**Image-to-Video Models:**
 - **Pixverse Image-to-Video** - Animate your images
+- **Kling Image-to-Video** - Advanced image animation
+- **WAN 2.2** - Cutting-edge image-to-video conversion
 
 **Modes:**
-- 📝 **Text-to-Video** - Generate from descriptions
-- 🖼️ **Image-to-Video** - Bring images to life
+- 📝 **Text-to-Video** - Generate from descriptions (4 models)
+- 🖼️ **Image-to-Video** - Bring images to life (3 models)
 
-**Aspect Ratios:** Portrait (9:16), Landscape (16:9)
+**Aspect Ratios:** Square (1:1), Portrait (9:16), Landscape (16:9)
 
 ---
 
@@ -56,6 +62,20 @@ Produce professional music tracks with AI:
 - Automatic verse/lyrics enhancement
 - Optional music style enhancement
 - Professional-quality output
+
+---
+
+### 👤 **AI Avatar**
+Create lifelike AI avatars that speak and move:
+
+- **ByteDance OmniHuman** - Advanced AI avatar generation from FAL.ai
+- **Human Face Animation** - Lip-sync with audio input
+- **Image Processing** - Automatic resizing (512x512 to 4000x4000)
+
+**Requirements:**
+- Image file with human face (JPEG, PNG, WebP)
+- Audio file for speech (MP3, WAV, OGG, M4A)
+- Generates MP4 video with animated speaking avatar
 
 ---
 
@@ -90,6 +110,10 @@ Dream Canvas Art/
 │   │   │   ├── audio_generation.py
 │   │   │   ├── audio_generation_route.py
 │   │   │   └── audio_generation_schema.py
+│   │   ├── ai_avatar/             # 👤 AI Avatar generation (3 files)
+│   │   │   ├── ai_avatar_service.py
+│   │   │   ├── ai_avatar_route.py
+│   │   │   └── ai_avatar_schema.py
 │   │   └── prompt_enhancement/    # 🧠 Prompt enhancement (3 files)
 │   │       ├── prompt_enhancement.py
 │   │       ├── prompt_enhancement_route.py
@@ -200,50 +224,75 @@ PORT=8080
 
 ### 🖼️ Image Generation
 ```http
-POST /api/image/generate
+POST /api/v1/image/generate
 Content-Type: multipart/form-data
 
 Parameters:
 - prompt (string): Text description
-- model (string): dalle, flux-1-spro, gemini, flux-kontext-dev, qwen, 
-                  gemini-nanobanana, flux-kontext-edit, seedream
+- model (string): EXACT MODEL NAME (case-sensitive)
+                  Text-to-image: dalle | flux_1_spro | gemini | flux_kontext_dev | qwen | gemini_nanobanana | seedream
+                  Image editing: flux_kontext_edit | gemini_nanobanana | seedream
 - mode (string): generate or edit
 - user_id (string): User identifier
-- style (string): Photo, Illustration, Comic, etc.
+- style (string): Photo, Illustration, Comic, Anime, Abstract, Fantasy, PopArt
 - shape (string): square, portrait, landscape
-- image_files (files, optional): Reference images for edit mode
+- image_files (files, optional): Reference images for edit mode (max 4 files)
+                                  flux_kontext_edit: exactly 1 image required
+                                  gemini_nanobanana: 0-4 images supported
+                                  seedream: 0-4 images supported
 ```
 
 ### 🎬 Video Generation
 ```http
-POST /api/video/generate
+POST /api/v1/video/generate
 Content-Type: multipart/form-data
 
 Parameters:
 - prompt (string): Text description
-- model (string): veo-2, veo-3-fast, pixverse
+- model (string): EXACT MODEL NAME (case-sensitive)
+                  Text-to-video: veo-2 | veo-3-fast | pixverse | kling
+                  Image-to-video: pixverse-image-to-video | kling-image-to-video | wan-2.2
 - mode (string): generate (text-to-video) or edit (image-to-video)
 - user_id (string): User identifier
-- shape (string): portrait, landscape
-- image_file (file, optional): Reference image for image-to-video
+- shape (string): square, portrait, landscape
+- image_file (file, optional): Reference image for image-to-video (required for edit mode)
 ```
 
 ### 🎵 Audio Generation
 ```http
-POST /api/audio/generate
+POST /api/v1/audio/generate
 Content-Type: application/json
 
 Body:
 {
   "verse_prompt": "Your lyrics/verse text",
-  "user_id": "user123",
   "lyrics_prompt": "Optional music style description"
 }
+
+Headers:
+- user_id (string): User identifier
+```
+
+### 👤 AI Avatar
+```http
+POST /api/v1/avatar/ai-avatar
+Content-Type: multipart/form-data
+
+Parameters:
+- image_file (file): Human face image (JPEG, PNG, WebP)
+                     Dimensions: 512x512 to 4000x4000 (auto-resized)
+- audio_file (file): Speech audio (MP3, WAV, OGG, M4A)
+
+Headers:
+- user_id (string): User identifier
+
+Returns:
+- video_url (string): MP4 video with animated speaking avatar
 ```
 
 ### 🧠 Prompt Enhancement
 ```http
-POST /api/prompt/enhance
+POST /api/v1/prompt/enhance
 Content-Type: application/json
 
 Body:
@@ -294,8 +343,11 @@ DELETE /api/delete-user-data/{user_id}
 |-------|-------|---------|------|
 | Veo 2.0 | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Text-to-Video |
 | Veo 3.0 Fast | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Text-to-Video |
-| Pixverse (Text) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Text-to-Video |
-| Pixverse (Image) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Image-to-Video |
+| Pixverse | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Text-to-Video |
+| Kling | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Text-to-Video |
+| Pixverse Image-to-Video | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Image-to-Video |
+| Kling Image-to-Video | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Image-to-Video |
+| WAN 2.2 | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Image-to-Video |
 
 ---
 
@@ -363,29 +415,6 @@ We welcome contributions! Please follow these guidelines:
 
 ---
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- OpenAI for DALL-E 3 and GPT-4o
-- Google for Gemini AI (Imagen, Veo, NanoBanana)
-- FAL.ai for Flux, Pixverse, Qwen, SeeDream, and MiniMax models
-- FastAPI community for the excellent framework
-
----
-
-## 📞 Support
-
-- 📧 Email: support@xobehstudio.com
-- 📚 Documentation: http://localhost:8080/docs
-- 🐛 Issues: GitHub Issues
-
----
-
 ## 🎉 Quick Start Example
 
 ```python
@@ -393,15 +422,15 @@ import requests
 
 # Generate an image
 response = requests.post(
-    "http://localhost:8080/api/image/generate",
+    "http://localhost:8080/api/v1/image/generate",
     data={
         "prompt": "A futuristic city at sunset",
-        "model": "dalle",
+        "model": "dalle",  # Use exact model name (case-sensitive)
         "mode": "generate",
-        "user_id": "user123",
-        "style": "Cyberpunk",
+        "style": "Photo",
         "shape": "landscape"
-    }
+    },
+    headers={"user_id": "user123"}
 )
 
 image_url = response.json()["image_url"]
