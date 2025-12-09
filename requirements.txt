@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pydantic
+requests
+python-multipart
+python-dotenv
+google-genai
+protobuf 
+sentencepiece
+openai
+fal-client
+google-cloud-storage 
+Pillow
+packaging
