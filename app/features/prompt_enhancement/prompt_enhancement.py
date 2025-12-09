@@ -29,7 +29,6 @@ class PromptEnhancementService:
         try:
             logger.info(f"Enhancing {type} prompt: {prompt[:50]}...")
             
-            # Select appropriate system prompt based on type
             if type.lower() == "image":
                 system_prompt = self._get_image_system_prompt()
                 user_message = f"""Enhance this prompt for AI image generation: "{prompt}"
@@ -51,7 +50,6 @@ class PromptEnhancementService:
             else:
                 raise ValueError(f"Invalid type: {type}. Must be 'image', 'video', or 'audio'")
             
-            # Call OpenAI API
             response = self.client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
@@ -62,7 +60,6 @@ class PromptEnhancementService:
                 temperature=0.7
             )
             
-            # Get the enhanced prompt
             enhanced_prompt = response.choices[0].message.content.strip()
             
             logger.info(f"{type.capitalize()} prompt enhanced successfully")
@@ -72,7 +69,6 @@ class PromptEnhancementService:
             logger.error(f"Error enhancing prompt: {str(e)}")
             raise Exception(f"Failed to enhance prompt: {str(e)}")
 
-    # ==================== SYSTEM PROMPTS ====================
 
     def _get_image_system_prompt(self) -> str:
         """System prompt for image generation enhancement"""
@@ -98,6 +94,4 @@ class PromptEnhancementService:
         
         Focus on: musical style, instruments, tempo, mood, harmony, rhythm, production quality."""
 
-
-# Create singleton instance
 prompt_enhancement_service = PromptEnhancementService()
